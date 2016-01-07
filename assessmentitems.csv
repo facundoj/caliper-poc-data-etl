@@ -1,0 +1,9 @@
+ID,RESPONSE_ID,RESPONSE_TYPE,RESPONSE_VALUE,ASSESSMENT_ID,ATTEMPT_ID
+assessmet-item-01,response-55,FILLINBLANK,<some-answer>,assessment-01,attempt-02
+assessmet-item-02,response-66,SELECTTEXT,<some-answer>,assessment-01,attempt-02
+assessmet-item-03,response-77,TRUEFALSE,<some-answer>,assessment-01,attempt-02
+assessmet-item-04,response-88,FILLINBLANK,<some-answer>,assessment-01,attempt-02
+assessmet-item-05,response-11,FILLINBLANK,<some-answer>,assessment-02,attempt-03
+assessmet-item-06,response-22,SELECTTEXT,<some-answer>,assessment-02,attempt-03
+assessmet-item-07,response-33,TRUEFALSE,<some-answer>,assessment-02,attempt-03
+assessmet-item-08,response-44,FILLINBLANK,<some-answer>,assessment-02,attempt-03

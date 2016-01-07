@@ -1,0 +1,14 @@
+{
+  "name": "poc-etl",
+  "version": "1.0.0",
+  "description": "ETL for generating entry data for POC Client",
+  "main": "etl.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "rimraf": "^2.5.0"
+  }
+}
