@@ -9,13 +9,13 @@ var ASSESSMENT_ITEM_PATTERN = /^(.+),(.+),(.+),(.+),(.+),(.+)/;
 
 var assessments = null,
     items = null,
-
     targetReady = false;
 
 if (process.argv.length < 4) {
     console.log('Usage: node etl.js <assessments-csv> <assessment-items-csv>');
     return;
 }
+
 // Reading Assessments
 fs.readFile(path.normalize(process.argv[2]), 'utf-8', function(err, data) {
     if (err) {
@@ -33,6 +33,7 @@ fs.readFile(path.normalize(process.argv[3]), 'utf-8', function(err, data) {
         console.log('Failed to read file.');
         return;
     }
+
     items = data.trim()
         .split('\n')
         .filter(function(line, i) { return i > 0; }) // remove column names
@@ -62,8 +63,7 @@ function start() {
 
     // Writting files
     outputFilesData.forEach(function(events, i) {
-        var filename = './target/events-' + i + '-' + Date.now() + '.json';
-        debugger;
+        var filename = path.normalize('./target/events-' + i + '-' + Date.now() + '.json');
         fs.writeFile(filename, JSON.stringify(events), function(err) {
             if (err) {
                 console.log('Couldn\'t create ' + filename);
