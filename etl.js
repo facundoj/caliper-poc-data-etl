@@ -4,8 +4,8 @@ var fs      = require('fs'),
 
 // ID,NAME,VERSION,ATTEMPT_ID,ATTEMPT_COUNT,RESULT_ID,SCORE,TOTAL
 var ASSESSMENT_PATTERN = /^(.+),(.+),(.+),(.+),(.+),(.+),(.+),(.+)/;
-// ID,RESPONSE_ID,RESPONSE_TYPE,RESPONSE_VALUE,ASSESSMENT_ID,ATTEMPT_ID
-var ASSESSMENT_ITEM_PATTERN = /^(.+),(.+),(.+),(.+),(.+),(.+)/;
+// ID,RESPONSE_ID,RESPONSE_TYPE,RESPONSE_VALUE,ASSESSMENT_ID,ATTEMPT_ID,LO_ID,RESULT_ID,SCORE,TOTAL
+var ASSESSMENT_ITEM_PATTERN = /^(.+),(.+),(.+),(.+),(.+),(.+),(.+),(.+),(.+),(.+)/;
 
 var assessments = null,
     items = null,
@@ -75,12 +75,14 @@ function start() {
 }
 
 function formatAssessmentItemsElements(line) {
+    // ID,RESPONSE_ID,RESPONSE_TYPE,RESPONSE_VALUE,ASSESSMENT_ID,ATTEMPT_ID,LO_ID,RESULT_ID,SCORE,TOTAL
+    // 1, 2,          3,            4,             5,            6,         7,    8,        9,    10
     // Pulling values from assessment item row
     var res = line.trim().match(ASSESSMENT_ITEM_PATTERN);
     if (!res) return null;
 
     // Details JSON structure for AssessmentItemEvent
-    return createEvent('ASSESSMENT_ITEM_EVENT', {
+    var assessmentItemEvent = createEvent('ASSESSMENT_ITEM_EVENT', {
         action: 'COMPLETED',
         object: {
             id: res[1]
@@ -93,8 +95,37 @@ function formatAssessmentItemsElements(line) {
         isPartOf: {
             // attempt id
             id: res[6]
+        },
+        learningObjective: []
+    });
+
+    // Supports n Learning Objects splitted by ";"
+    res[7].trim().split(';').forEach(function(id) {
+        assessmentItemEvent.values.learningObjective.push({
+            id: id
+        });
+    });
+
+    var outcomeEvent = createEvent('OUTCOME_EVENT', {
+        action: 'GRADED',
+        target: {
+            id: res[1]
+        },
+        object: {
+            id: res[6]
+        },
+        generated: {
+            id: res[8],
+            normalScore: res[9],
+            totalScore: res[10]
         }
     });
+
+    return {
+        attempt: res[6],
+        assessmentInfo: assessmentItemEvent,
+        assessmentOutcomeInfo: outcomeEvent
+    };
 }
 
 function formatAssessmentElements(line) {
@@ -117,9 +148,15 @@ function formatAssessmentElements(line) {
         }
     }));
 
-    items
-        .filter(function(assessmentItemEvent) { // Left joining by attempt id
-            return assessmentItemEvent.values.isPartOf.id == res[4];
+    // Left joining by attempt id
+    var filteredItems = items.filter(function(itemEvent) {
+        return itemEvent.attempt == res[4];
+    });
+
+    // Assessment Item Event
+    filteredItems.map(function(item) {
+            // Get assessment data only
+            return item.assessmentInfo;
         }).forEach(function(assessmentItemEvent) { // Adding to the chain
             eventsChain.push(assessmentItemEvent);
         });
@@ -151,6 +188,14 @@ function formatAssessmentElements(line) {
             totalScore: res[8]
         }
     }));
+
+
+    filteredItems.map(function(item) {
+            // Get assessment data only
+            return item.assessmentOutcomeInfo;
+        }).forEach(function(assessmentItemEvent) { // Adding to the chain
+            eventsChain.push(assessmentItemEvent);
+        });
 
     return eventsChain;
 }
