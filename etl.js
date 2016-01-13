@@ -93,8 +93,8 @@ function formatAssessmentItemsElements(line) {
             value: res[4]
         },
         isPartOf: {
-            // attempt id
-            id: res[6]
+            // assessment id
+            id: res[5]
         },
         learningObjective: []
     });
@@ -122,13 +122,15 @@ function formatAssessmentItemsElements(line) {
     });
 
     return {
-        attempt: res[6],
+        assessmentId: res[5],
         assessmentInfo: assessmentItemEvent,
         assessmentOutcomeInfo: outcomeEvent
     };
 }
 
 function formatAssessmentElements(line) {
+    // ID,NAME,VERSION,ATTEMPT_ID,ATTEMPT_COUNT,RESULT_ID,SCORE,TOTAL
+    // 1, 2,   3,      4,         5,            6,        7,    8
     // Pulling values from assessment row
     var res = line.trim().match(ASSESSMENT_PATTERN);
     if (!res) return null;
@@ -148,9 +150,9 @@ function formatAssessmentElements(line) {
         }
     }));
 
-    // Left joining by attempt id
+    // Left joining by assessment id
     var filteredItems = items.filter(function(itemEvent) {
-        return itemEvent.attempt == res[4];
+        return itemEvent.assessmentId == res[1];
     });
 
     // Assessment Item Event
