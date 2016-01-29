@@ -91,7 +91,8 @@ function formatAssessmentItemsElements(line) {
             learningObjectives
         },
         object: {
-            id: res[6]
+            id: res[6],
+            count: 1
         },
         generated: {
             normalScore: res[13],
